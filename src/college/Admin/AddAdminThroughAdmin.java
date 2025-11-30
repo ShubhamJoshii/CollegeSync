@@ -22,6 +22,7 @@ public final class AddAdminThroughAdmin extends javax.swing.JDialog {
     public AddAdminThroughAdmin(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        this.setLocationRelativeTo(null);
     }
 
     /**
@@ -47,8 +48,6 @@ public final class AddAdminThroughAdmin extends javax.swing.JDialog {
         setBackground(new java.awt.Color(248, 251, 255));
         setModal(true);
         setResizable(false);
-
-        fullName.setText("Shubham Johsiafdf");
 
         jLabel27.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel27.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -80,7 +79,11 @@ public final class AddAdminThroughAdmin extends javax.swing.JDialog {
             }
         });
 
-        email.setText("shubhamjoshi45@gmail.com");
+        email.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                emailActionPerformed(evt);
+            }
+        });
 
         jLabel39.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel39.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -198,6 +201,10 @@ public final class AddAdminThroughAdmin extends javax.swing.JDialog {
     private void closeAddUser(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeAddUser
         this.dispose();
     }//GEN-LAST:event_closeAddUser
+
+    private void emailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_emailActionPerformed
 
     /**
      * @param args the command line arguments

@@ -97,9 +97,6 @@
   </Layout>
   <SubComponents>
     <Component class="javax.swing.JTextField" name="fullName">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Shubham Johsiafdf"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel27">
       <Properties>
@@ -159,9 +156,6 @@
       </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="email">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="shubhamjoshi45@gmail.com"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel39">
       <Properties>

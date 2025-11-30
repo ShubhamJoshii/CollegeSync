@@ -28,7 +28,6 @@ public final class StudentsAdmin extends javax.swing.JPanel {
         }
 
         fetchCourses();
-
     }
 
     public void fetchCourses() {
@@ -65,15 +64,12 @@ public final class StudentsAdmin extends javax.swing.JPanel {
             ps.setString(2, "Student");
             
             ResultSet rs = ps.executeQuery();
-
             model.setRowCount(0);
-
             while (rs.next()) {
                 int id = rs.getInt("userId");
                 String userName = rs.getString("userName");
                 String email = rs.getString("email");
-                String contactNumber = rs.getString("contact");
-                
+                String contactNumber = rs.getString("contact");       
                 String userStatus = rs.getString("status");
                 model.addRow(new Object[]{++count, id, userName, email, courseName, contactNumber, userStatus});
             }

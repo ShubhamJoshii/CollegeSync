@@ -1,5 +1,8 @@
 package college;
 
+import TimeTable.TimeTableAdminTeacher;
+import TimeTable.TimeTableStudent;
+import college.Admin.ManageLeaveRequests;
 import college.Admin.StudentsAdmin;
 import college.Admin.TeacherAdmin;
 
@@ -11,7 +14,10 @@ public class MainFrame extends javax.swing.JFrame {
     public Home home;
     public Profile profile;
     public Manage manage;
-
+    public LeaveRequest leaveRequest;
+    public ManageLeaveRequests manageLeaveRequests;
+    public TimeTableStudent timeTableStudent;
+    
     public MainFrame() {
         initComponents();
         this.setLocationRelativeTo(null);
@@ -24,10 +30,13 @@ public class MainFrame extends javax.swing.JFrame {
 //        headerContainer.setLayout(new BorderLayout());
         header = new Header(this);
         studentForm = new StudentEntryForm(this);
+        timeTableStudent = new TimeTableStudent(this);
         home = new Home(this);
         manage = new Manage(this);
         profile = new Profile(this);
         headerContainer.add(header);
+        leaveRequest = new LeaveRequest(this);
+        manageLeaveRequests = new ManageLeaveRequests(this); 
         mainPanel.add(home, "home");
         mainPanel.add(manage, "manage");
         mainPanel.add(studentForm, "studentForm");
@@ -36,13 +45,15 @@ public class MainFrame extends javax.swing.JFrame {
         mainPanel.add(new Register(this), "register");
         mainPanel.add(new StudentsAdmin(this), "students");
         mainPanel.add(new TeacherAdmin(this), "teachers");
-        mainPanel.add(new TimeTable(this), "timetable");
-        mainPanel.add(new LeaveRequest(this), "leaverequest");
+        mainPanel.add(new TimeTableAdminTeacher(this), "timetable");
+        mainPanel.add(timeTableStudent, "timetableStudent");
+        mainPanel.add(leaveRequest, "leaverequest");
+        mainPanel.add(manageLeaveRequests, "manageleaverequest");
         mainPanel.add(new Fees(this), "fees");
         mainPanel.add(new Announcement(this), "announcement");
         mainPanel.add(new Course(this), "course");
         mainPanel.add(new Attendence(this), "attendence");
-
+        
     }
 
     public void showHeader(boolean visible) {
@@ -55,6 +66,9 @@ public class MainFrame extends javax.swing.JFrame {
         home.updateButtonVisibility();
         header.updateButtonVisibility();
         profile.updateButtonVisibility();
+        leaveRequest.updateButtonVisibility();
+        manageLeaveRequests.fetchLeaves();
+        timeTableStudent.updateButtonVisibility();
     }
 
     @SuppressWarnings("unchecked")

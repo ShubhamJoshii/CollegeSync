@@ -15,9 +15,10 @@ public class Home extends javax.swing.JPanel {
     public final void updateButtonVisibility() {
         if (UserSession.isLoggedIn()) {
             buttonContainer.add(profileBtn);
-            buttonContainer.add(leaveRequestBtn);
+//            buttonContainer.add(timetable);
             if ("faculty".equalsIgnoreCase(UserSession.getUserRole())) {
 //                buttonContainer.add(studentBtn);
+                buttonContainer.add(leaveRequestBtn);
                 buttonContainer.add(studentBtn);
                 buttonContainer.add(attendenceBtn);
                 buttonContainer.add(manageBtn);
@@ -26,14 +27,20 @@ public class Home extends javax.swing.JPanel {
                 buttonContainer.add(studentBtn);
                 buttonContainer.add(attendenceBtn);
                 buttonContainer.add(manageBtn);
+                buttonContainer.add(manageLeaveRequest);
+            } else {
+                buttonContainer.add(leaveRequestBtn);
             }
         } else {
             buttonContainer.remove(profileBtn);
+            buttonContainer.remove(manageLeaveRequest);
             buttonContainer.remove(teachersBtn);
             buttonContainer.remove(studentBtn);
             buttonContainer.remove(attendenceBtn);
             buttonContainer.remove(leaveRequestBtn);
             buttonContainer.remove(manageBtn);
+//          buttonContainer.remove(timetable);
+
         }
         buttonContainer.revalidate();
         buttonContainer.repaint();
@@ -54,6 +61,7 @@ public class Home extends javax.swing.JPanel {
         studentBtn = new javax.swing.JButton();
         teachersBtn = new javax.swing.JButton();
         manageBtn = new javax.swing.JButton();
+        manageLeaveRequest = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(248, 251, 255));
         setMinimumSize(new java.awt.Dimension(1400, 800));
@@ -173,6 +181,17 @@ public class Home extends javax.swing.JPanel {
         });
         buttonContainer.add(manageBtn);
 
+        manageLeaveRequest.setBackground(new java.awt.Color(0, 153, 204));
+        manageLeaveRequest.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        manageLeaveRequest.setForeground(new java.awt.Color(255, 255, 255));
+        manageLeaveRequest.setText("MANAGE LEAVE REQUESTS");
+        manageLeaveRequest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                manageLeaveRequestActionPerformed(evt);
+            }
+        });
+        buttonContainer.add(manageLeaveRequest);
+
         add(buttonContainer);
         buttonContainer.setBounds(50, 110, 1260, 260);
     }// </editor-fold>//GEN-END:initComponents
@@ -190,7 +209,11 @@ public class Home extends javax.swing.JPanel {
     private void timetableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_timetableActionPerformed
         // TODO add your handling code here:
         CardLayout cl = (CardLayout) main.mainPanel.getLayout();
-        cl.show(main.mainPanel, "timetable");
+        if ("student".equalsIgnoreCase(UserSession.getUserRole())) {
+            cl.show(main.mainPanel, "timetableStudent");
+        } else {
+            cl.show(main.mainPanel, "timetable");
+        }
     }//GEN-LAST:event_timetableActionPerformed
 
     private void coursesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_coursesActionPerformed
@@ -229,6 +252,11 @@ public class Home extends javax.swing.JPanel {
         cl.show(main.mainPanel, "teachers");
     }//GEN-LAST:event_teachersBtnActionPerformed
 
+    private void manageLeaveRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageLeaveRequestActionPerformed
+        CardLayout cl = (CardLayout) main.mainPanel.getLayout();
+        cl.show(main.mainPanel, "manageleaverequest");
+    }//GEN-LAST:event_manageLeaveRequestActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton announcement;
@@ -238,6 +266,7 @@ public class Home extends javax.swing.JPanel {
     private javax.swing.JButton feesBtn;
     private javax.swing.JButton leaveRequestBtn;
     private javax.swing.JButton manageBtn;
+    private javax.swing.JButton manageLeaveRequest;
     private javax.swing.JButton profileBtn;
     private javax.swing.JButton studentBtn;
     private javax.swing.JButton teachersBtn;

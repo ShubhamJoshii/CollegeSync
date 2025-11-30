@@ -5,6 +5,7 @@
 package college;
 
 import college.Admin.AddAdminThroughAdmin;
+import TimeTable.GenerateTimeTable;
 
 public class Manage extends javax.swing.JPanel {
 
@@ -23,20 +24,17 @@ public class Manage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
+        generateNewTimeTable = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(248, 251, 255));
         setPreferredSize(new java.awt.Dimension(1170, 800));
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
-        jLabel1.setText("ADD NEW ADMIN");
-
         jButton1.setBackground(new java.awt.Color(0, 153, 153));
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("ADD ADMIN");
+        jButton1.setText("ADD NEW ADMIN");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -46,6 +44,16 @@ public class Manage extends javax.swing.JPanel {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel2.setText("Manage ");
 
+        generateNewTimeTable.setBackground(new java.awt.Color(0, 102, 102));
+        generateNewTimeTable.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        generateNewTimeTable.setForeground(new java.awt.Color(255, 255, 255));
+        generateNewTimeTable.setText("GENERATE NEW TIME TABLE");
+        generateNewTimeTable.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                generateNewTimeTableActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -53,12 +61,12 @@ public class Manage extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGap(38, 38, 38)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(204, 204, 204)
-                        .addComponent(jButton1)))
-                .addContainerGap(653, Short.MAX_VALUE))
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(57, 57, 57)
+                        .addComponent(generateNewTimeTable, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(593, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -67,9 +75,9 @@ public class Manage extends javax.swing.JPanel {
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jButton1))
-                .addContainerGap(493, Short.MAX_VALUE))
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(generateNewTimeTable, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(637, 637, 637))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -79,10 +87,16 @@ public class Manage extends javax.swing.JPanel {
         addAdminThroughAdmin.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void generateNewTimeTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateNewTimeTableActionPerformed
+        GenerateTimeTable generateTimeTable;
+        generateTimeTable = new GenerateTimeTable(null, true);
+        generateTimeTable.setVisible(true);
+    }//GEN-LAST:event_generateNewTimeTableActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton generateNewTimeTable;
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     // End of variables declaration//GEN-END:variables
 }

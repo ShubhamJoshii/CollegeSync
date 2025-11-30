@@ -30,6 +30,7 @@ public final class AddStudentThroughAdmin extends javax.swing.JDialog {
     public AddStudentThroughAdmin(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        this.setLocationRelativeTo(null);
         fetchCourses();
     }
 
@@ -78,8 +79,6 @@ public final class AddStudentThroughAdmin extends javax.swing.JDialog {
         setModal(true);
         setResizable(false);
 
-        fullName.setText("Shubham Johsiafdf");
-
         jLabel27.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel27.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel27.setText("Full Name");
@@ -109,8 +108,6 @@ public final class AddStudentThroughAdmin extends javax.swing.JDialog {
                 closeAddUser(evt);
             }
         });
-
-        email.setText("shubhamjoshi45@gmail.com");
 
         jLabel39.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel39.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);

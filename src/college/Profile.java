@@ -1,16 +1,80 @@
 package college;
 
+import collegemanagement.DBConnection;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
+class StatusColorRenderer extends DefaultTableCellRenderer {
+
+    // Add this constructor to Center the text
+    public StatusColorRenderer() {
+        setHorizontalAlignment(JLabel.CENTER);
+    }
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        String status = (String) value;
+
+        c.setFont(c.getFont().deriveFont(Font.BOLD));
+
+        // Reset color to black by default before checking status
+        c.setForeground(Color.BLACK);
+
+        if (status != null) {
+            switch (status) {
+                case "APPROVED" ->
+                    c.setForeground(new Color(0, 153, 51)); // Dark Green
+                case "REJECTED" ->
+                    c.setForeground(Color.RED);
+                case "PENDING" ->
+                    c.setForeground(new Color(255, 153, 0)); // Dark Orange
+                default ->
+                    c.setForeground(Color.BLACK);
+            }
+        }
+
+        if (isSelected) {
+            c.setForeground(table.getSelectionForeground());
+            c.setBackground(table.getSelectionBackground());
+        }
+        return c;
+    }
+}
+
 public class Profile extends javax.swing.JPanel {
 
     MainFrame main;
+    DefaultTableModel model;
 
     public Profile(MainFrame main) {
         initComponents();
         this.main = main;
+        model = (DefaultTableModel) leaveRequestTable.getModel();
+
+        leaveRequestTable.setRowHeight(23);
+        leaveRequestTable.getColumnModel().getColumn(0).setPreferredWidth(50);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < leaveRequestTable.getColumnCount(); i++) {
+            leaveRequestTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+        leaveRequestTable.getColumnModel().getColumn(4).setCellRenderer(new StatusColorRenderer());
     }
 
     public final void updateButtonVisibility() {
         if (UserSession.isLoggedIn()) {
+            fetchLeavesDetails(UserSession.getUserID());
             details.setText(UserSession.getUserRole() + " Detail");
             rollNo.setText(UserSession.getRollNumber());
             applicationNo.setText(UserSession.getApplicationNumber());
@@ -24,13 +88,43 @@ public class Profile extends javax.swing.JPanel {
                 detailsPanel.remove(personalDetails);
                 rollNoField.setText("Registration Number");
                 courseLabel.setVisible(false);
-            }else{
+            } else {
                 fatherName.setText(UserSession.getFatherName());
                 motherName.setText(UserSession.getMotherName());
                 fatherOccu.setText(UserSession.getFatherOccu());
                 motherOccu.setText(UserSession.getMotherOccu());
-            
+
             }
+        }
+    }
+
+    public void fetchLeavesDetails(int userId) {
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql, leave_type, reason, startDate, lastDate, status;
+            int count = 0;
+            sql = "select la.* from leave_applications la "
+                    + "where la.userId = ? "
+                    + "ORDER BY la.date_from DESC;";
+
+            PreparedStatement pst = conn.prepareStatement(sql);
+
+            pst.setString(1, "" + userId);
+            ResultSet res = pst.executeQuery();
+
+            model.setRowCount(0);
+
+            while (res.next()) {
+                leave_type = res.getString("leave_type");
+                reason = res.getString("reason");
+                startDate = res.getString("date_from");
+                lastDate = res.getString("date_to");
+                status = res.getString("status");
+                System.out.println(startDate + " to " + lastDate);
+                model.addRow(new Object[]{++count, leave_type, reason, startDate + " - " + lastDate, status.toUpperCase()});
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println("Error in register User Session: " + e.getMessage());
         }
     }
 
@@ -67,8 +161,13 @@ public class Profile extends javax.swing.JPanel {
         motherOccu = new javax.swing.JLabel();
         jLabel31 = new javax.swing.JLabel();
         address = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        details1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        leaveRequestTable = new javax.swing.JTable();
 
         setBackground(new java.awt.Color(248, 251, 255));
+        setPreferredSize(new java.awt.Dimension(1400, 572));
 
         applicationNo.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         applicationNo.setText("MCA0445488");
@@ -288,36 +387,71 @@ public class Profile extends javax.swing.JPanel {
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
+        jPanel1.setOpaque(false);
+
+        details1.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        details1.setText("Leave Requests");
+
+        leaveRequestTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "S. No.", "Leave Type", "Reason", "Duration", "Status"
+            }
+        ));
+        jScrollPane1.setViewportView(leaveRequestTable);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(92, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(details1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1225, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(83, 83, 83))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(details1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(44, 44, 44)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(80, 80, 80)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(details, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(624, 624, 624))
+                        .addGap(379, 379, 379))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(150, 150, 150)
-                                        .addComponent(applicationNo)))
-                                .addGap(53, 53, 53)
-                                .addComponent(rollNoField, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(rollNo, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(40, 40, 40)
-                                .addComponent(courseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, 0)
-                                .addComponent(course, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(detailsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(photoDP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(150, 150, 150)
+                                .addComponent(applicationNo)))
+                        .addGap(53, 53, 53)
+                        .addComponent(rollNoField, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(rollNo, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(courseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, 0)
+                        .addComponent(course, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(detailsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(photoDP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(79, 79, 79))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -337,7 +471,9 @@ public class Profile extends javax.swing.JPanel {
                             .addComponent(rollNo))
                         .addGap(18, 18, 18)
                         .addComponent(detailsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(285, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -349,6 +485,7 @@ public class Profile extends javax.swing.JPanel {
     private javax.swing.JLabel course;
     private javax.swing.JLabel courseLabel;
     private javax.swing.JLabel details;
+    private javax.swing.JLabel details1;
     private javax.swing.JPanel detailsPanel;
     private javax.swing.JLabel dob;
     private javax.swing.JLabel email;
@@ -366,6 +503,9 @@ public class Profile extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable leaveRequestTable;
     private javax.swing.JLabel motherName;
     private javax.swing.JLabel motherOccu;
     private javax.swing.JPanel personalDetails;

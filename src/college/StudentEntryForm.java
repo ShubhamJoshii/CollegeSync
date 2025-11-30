@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import javax.swing.BorderFactory;
@@ -124,6 +125,9 @@ public class StudentEntryForm extends javax.swing.JPanel {
     private String updateBackendDetails() {
         char[] pass = password.getPassword();
         String hashedPassword = BCrypt.hashpw(new String(pass), BCrypt.gensalt(12));
+        LocalDate currentDate = LocalDate.now();
+        int currentYear = currentDate.getYear();
+        String rollNo;
         try {
             Connection conn = DBConnection.getConnection();
             String sql;
@@ -137,17 +141,21 @@ public class StudentEntryForm extends javax.swing.JPanel {
                 pst.setString(3, mother);
                 pst.setString(4, fatherOccu);
                 pst.setString(5, motherOccu);
-                pst.setString(6, UserSession.getRollNumber());
+                rollNo = UserSession.getCourseName() + String.format("%0" + 4 + "d", UserSession.getUserID()) + currentYear;
+                pst.setString(6, rollNo);
                 pst.setString(7, address);
                 pst.setInt(8, UserSession.getUserID());
                 status = pst.executeUpdate();
 
             } else if ("admin".equalsIgnoreCase(UserSession.getUserRole())) {
-                sql = "UPDATE admins SET dob=?, address=?  WHERE userId=?";
+                sql = "UPDATE admins SET dob=?, address=?, adminId=?  WHERE userId=?";
+                rollNo = "ADMIN" + String.format("%0" + 4 + "d", UserSession.getUserID()) + currentYear;
+                
                 pst = conn.prepareStatement(sql);
                 pst.setDate(1, new java.sql.Date(birthDate.getTime()));
                 pst.setString(2, address);
-                pst.setInt(3, UserSession.getUserID());
+                pst.setString(3, rollNo);
+                pst.setInt(4, UserSession.getUserID());
                 status = pst.executeUpdate();
 
             } else {
@@ -159,12 +167,13 @@ public class StudentEntryForm extends javax.swing.JPanel {
                 pst.setString(4, fatherOccupaton.getText());
                 pst.setString(5, motherOccupation.getText());
                 pst.setString(6, address);
-                pst.setString(7, UserSession.getRollNumber());
+                rollNo = "FACULTY" + String.format("%0" + 4 + "d", UserSession.getUserID()) + currentYear;
+                pst.setString(7, rollNo);
                 pst.setDate(1, new java.sql.Date(birthDate.getTime()));
                 pst.setString(8, designationField.getText());
                 pst.setDate(9, new java.sql.Date(System.currentTimeMillis()));
                 pst.setInt(10, UserSession.getUserID());
-                
+
                 status = pst.executeUpdate();
             }
 
@@ -192,7 +201,7 @@ public class StudentEntryForm extends javax.swing.JPanel {
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println("Error in Student Entry Form: " + e.getMessage());
             return "Updation Failed: " + e.getMessage();
-        }        
+        }
         return null;
     }
 
@@ -716,7 +725,7 @@ public class StudentEntryForm extends javax.swing.JPanel {
             CardLayout cl = (CardLayout) main.mainPanel.getLayout();
             cl.show(main.mainPanel, "home");
             main.updateButtonVisibility();
-            
+
             main.showHeader(true);
         } else {
             JOptionPane.showMessageDialog(this,

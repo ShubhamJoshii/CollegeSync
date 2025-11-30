@@ -21,7 +21,8 @@ public class UserSession {
     private static String fatherOccu;
     private static String motherOccu;
     private static String address;
-
+    private static int semester = 0;
+    
     private static long contactNo;
 
     private static String courseName = "";
@@ -32,18 +33,18 @@ public class UserSession {
             Connection conn = DBConnection.getConnection();
             String sql;
             if ("student".equalsIgnoreCase(role)) {
-                sql = "select u.userId, u.userName, u.contact, u.role, u.email, u.contact, s.rollNo, s.dob, s.father_name, s.mother_name, s.father_occu, s.mother_occu, s.address, c.courseName from users u "
+                sql = "select u.userId, u.userName, u.contact, u.role, s.currSemester, u.email, s.rollNo as uniqueNo, s.dob, s.father_name, s.mother_name, s.father_occu, s.mother_occu, s.address, c.courseName from users u "
                         + "join students s on s.studentId = u.userId "
                         + "join courses c on c.courseId = s.courseId "
                         + "where u.userId = ?;";
             } else if ("admin".equalsIgnoreCase(role)) {
                 System.out.println("Admin Running");
-                sql = "select u.userId, u.userName, u.contact, u.role, u.email, u.contact, a.dob, a.address from users u "
+                sql = "select u.userId, u.userName, u.contact, u.role, u.email, u.contact, a.adminId as uniqueNo, a.dob, a.address from users u "
                         + "join admins a on a.userId = u.userId "
                         + "where u.userId = ?;";
 
             } else {
-                sql = "select u.userId, u.userName, u.contact, u.role, u.email, u.contact, t.employeeId, t.dob, t.father_name, t.mother_name, t.father_occu, t.mother_occu, t.address, d.departmentName from users u "
+                sql = "select u.userId, u.userName, u.contact, u.role, u.email, u.contact, t.employeeId as uniqueNo, t.dob, t.father_name, t.mother_name, t.father_occu, t.mother_occu, t.address, d.departmentName from users u "
                         + "join teachers t on t.userId = u.userId "
                         + "join departments d on d.departmentId = t.departmentId "
                         + "where u.userId = ?;";
@@ -69,7 +70,9 @@ public class UserSession {
 
                 address = res.getString("address");
                 isLoggedIn = true;
+                rollNo = res.getString("uniqueNo");
                 if ("student".equalsIgnoreCase(role) || "faculty".equalsIgnoreCase(role)) {
+                    semester = res.getInt("currSemester");
                     fatherName = res.getString("father_name");
                     motherName = res.getString("mother_name");
                     fatherOccu = res.getString("father_occu");
@@ -77,18 +80,18 @@ public class UserSession {
                     if ("student".equalsIgnoreCase(role)) {
                         courseName = res.getString("courseName");
                         applicationNo = res.getString("courseName") + String.format("%0" + 4 + "d", res.getInt("userID"));
-                        rollNo = res.getString("courseName") + String.format("%0" + 4 + "d", res.getInt("userID")) + currentYear;
+//                        rollNo = res.getString("courseName") + String.format("%0" + 4 + "d", res.getInt("userID")) + currentYear;
                     } else {
                         applicationNo = "FACULTY" + String.format("%0" + 4 + "d", res.getInt("userID"));
-                        rollNo = "FACULTY" + String.format("%0" + 4 + "d", res.getInt("userID")) + currentYear;
+//                        rollNo = "FACULTY" + String.format("%0" + 4 + "d", res.getInt("userID")) + currentYear;
                     }
 
                 } else if ("admin".equalsIgnoreCase(role)) {
                     applicationNo = "ADMIN" + String.format("%0" + 4 + "d", res.getInt("userID"));
-                    rollNo = "ADMIN" + String.format("%0" + 4 + "d", res.getInt("userID")) + currentYear;
+//                    rollNo = "ADMIN" + String.format("%0" + 4 + "d", res.getInt("userID")) + currentYear;
                 } else {
                     applicationNo = "FACULTY" + String.format("%0" + 4 + "d", res.getInt("userID"));
-                    rollNo = "FACULTY" + String.format("%0" + 4 + "d", res.getInt("userID")) + currentYear;
+//                    rollNo = "FACULTY" + String.format("%0" + 4 + "d", res.getInt("userID")) + currentYear;
                 }
             }
         } catch (ClassNotFoundException | SQLException e) {
@@ -125,6 +128,10 @@ public class UserSession {
 
     public static int getUserID() {
         return userId;
+    }
+    
+    public static int getSemester() {
+        return semester;
     }
 
     public static String getContactNumber() {
