@@ -93,9 +93,11 @@ public class Profile extends javax.swing.JPanel {
                 motherName.setText(UserSession.getMotherName());
                 fatherOccu.setText(UserSession.getFatherOccu());
                 motherOccu.setText(UserSession.getMotherOccu());
-
+                detailsPanel.add(personalDetails);
             }
         }
+        detailsPanel.repaint();
+        detailsPanel.revalidate();
     }
 
     public void fetchLeavesDetails(int userId) {

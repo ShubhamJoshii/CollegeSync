@@ -515,15 +515,8 @@ public final class TimeTableAdminTeacher extends javax.swing.JPanel {
                     hasResults = true;
                     for (int j = 1; j < data[a].length - 1; j++) {
                         data[a][j] = res.getString("slot_" + j);
-                        System.out.println(a);
                     }
                     a++;
-                }
-                for (Object[] data1 : data) {
-                    for (Object data11 : data1) {
-                        System.out.print(data11 + "\t");
-                    }
-                    System.out.println();
                 }
             }
             pst.close();
@@ -546,7 +539,6 @@ public final class TimeTableAdminTeacher extends javax.swing.JPanel {
             timeTable.getColumnModel().getColumn(i).setCellRenderer(renderer);
         }
 
-        System.out.println("Schedule Foudn" + scheduleFound);
         if (scheduleFound) {
             noTimeTable.setVisible(false);
             timeTableFound.setVisible(true);

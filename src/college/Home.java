@@ -20,12 +20,12 @@ public class Home extends javax.swing.JPanel {
 //                buttonContainer.add(studentBtn);
                 buttonContainer.add(leaveRequestBtn);
                 buttonContainer.add(studentBtn);
-                buttonContainer.add(attendenceBtn);
+//                buttonContainer.add(attendenceBtn);
                 buttonContainer.add(manageBtn);
             } else if ("admin".equalsIgnoreCase(UserSession.getUserRole())) {
                 buttonContainer.add(teachersBtn);
                 buttonContainer.add(studentBtn);
-                buttonContainer.add(attendenceBtn);
+//                buttonContainer.add(attendenceBtn);
                 buttonContainer.add(manageBtn);
                 buttonContainer.add(manageLeaveRequest);
             } else {
@@ -62,6 +62,7 @@ public class Home extends javax.swing.JPanel {
         teachersBtn = new javax.swing.JButton();
         manageBtn = new javax.swing.JButton();
         manageLeaveRequest = new javax.swing.JButton();
+        myScheduleBtn = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(248, 251, 255));
         setMinimumSize(new java.awt.Dimension(1400, 800));
@@ -192,6 +193,17 @@ public class Home extends javax.swing.JPanel {
         });
         buttonContainer.add(manageLeaveRequest);
 
+        myScheduleBtn.setBackground(new java.awt.Color(0, 153, 204));
+        myScheduleBtn.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        myScheduleBtn.setForeground(new java.awt.Color(255, 255, 255));
+        myScheduleBtn.setText("MY SCHEDULE");
+        myScheduleBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myScheduleBtnActionPerformed(evt);
+            }
+        });
+        buttonContainer.add(myScheduleBtn);
+
         add(buttonContainer);
         buttonContainer.setBounds(50, 110, 1260, 260);
     }// </editor-fold>//GEN-END:initComponents
@@ -257,6 +269,11 @@ public class Home extends javax.swing.JPanel {
         cl.show(main.mainPanel, "manageleaverequest");
     }//GEN-LAST:event_manageLeaveRequestActionPerformed
 
+    private void myScheduleBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myScheduleBtnActionPerformed
+        CardLayout cl = (CardLayout) main.mainPanel.getLayout();
+        cl.show(main.mainPanel, "myschedule");
+    }//GEN-LAST:event_myScheduleBtnActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton announcement;
@@ -267,6 +284,7 @@ public class Home extends javax.swing.JPanel {
     private javax.swing.JButton leaveRequestBtn;
     private javax.swing.JButton manageBtn;
     private javax.swing.JButton manageLeaveRequest;
+    private javax.swing.JButton myScheduleBtn;
     private javax.swing.JButton profileBtn;
     private javax.swing.JButton studentBtn;
     private javax.swing.JButton teachersBtn;

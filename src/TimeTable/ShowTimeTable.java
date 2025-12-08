@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package TimeTable;
 
 import collegemanagement.DBConnection;
@@ -14,16 +10,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
 class TeacherInfo {
 
+    public boolean[][] freeSlots;
     String shortName;
     String Name;
     java.awt.Color color;
@@ -32,6 +32,59 @@ class TeacherInfo {
         this.Name = Name;
         this.shortName = shortName;
         this.color = color;
+        this.freeSlots = new boolean[7][10];
+        for (boolean[] row : this.freeSlots) {
+            Arrays.fill(row, true);
+        }
+    }
+
+    public void setOccupied(int dayIndex, int slotIndex) {
+        if (dayIndex >= 0 && dayIndex < 7 && slotIndex >= 0 && slotIndex < 10) {
+            freeSlots[dayIndex][slotIndex] = false;
+        } else {
+            System.err.println("Invalid slot attempted: Day " + dayIndex + ", Slot " + slotIndex);
+        }
+    }
+
+    public boolean checkOccupied(int dayIndex, int slotIndex){
+        if (dayIndex >= 0 && dayIndex < 7 && slotIndex >= 0 && slotIndex < 10) {
+            return freeSlots[dayIndex][slotIndex];
+        }
+        return true;
+    }
+    
+    public static int getDayIndex(String dayName) {
+        if (dayName == null) {
+            return -1;
+        }
+        return switch (dayName.trim().toLowerCase()) {
+            case "monday" ->
+                0;
+            case "tuesday" ->
+                1;
+            case "wednesday" ->
+                2;
+            case "thursday" ->
+                3;
+            case "friday" ->
+                4;
+            case "saturday" ->
+                5;
+            case "sunday" ->
+                6;
+            default ->
+                -1;
+        };
+    }
+
+    public void laterDelete() {
+        for (int i = 0; i < 7; i++) {
+            System.out.print("Day " + (i + 1) + ": ");
+            for (int j = 0; j < 10; j++) {
+                System.out.print((freeSlots[i][j] ? "T" : "F") + " ");
+            }
+            System.out.println();
+        }
     }
 }
 
@@ -47,7 +100,6 @@ public final class ShowTimeTable extends javax.swing.JFrame {
 
     public ShowTimeTable(String courseCode, int courseSemester) {
         initComponents();
-        System.out.println("Time Table " + courseCode + " " + courseSemester);
         selectedCourse.setText(courseCode);
         selectedSemster.setText("" + courseSemester);
 
@@ -138,6 +190,152 @@ public final class ShowTimeTable extends javax.swing.JFrame {
         return "";
     }
 
+    public void fetchSubjectCourse(String courseCode, int courseSemester) {
+        String subjectName, subjectCode, userName, classType, shortName;
+        List<Subject> subjectList = new ArrayList<Subject>();
+        List<TeacherInfo> teachersList = new ArrayList<>();
+        Map<String, Color> colorMap = new HashMap<>();
+
+        List<String> condition = new ArrayList<String>();
+        int count = 0;
+        int week_total_classes, week_taken_classes;
+
+        String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        Object[][] data = new Object[days.length][10];
+        for (int i = 0; i < days.length; i++) {
+            data[i][0] = days[i];
+            if (i == 6) {
+                for (int j = 1; j < 10; j++) {
+                    data[i][j] = "H O L I D A Y";
+                }
+            } else {
+                data[i][3] = "T E A   B R E A K";
+                data[i][6] = "L U N C H   B R E A K";
+            }
+        }
+        String slotType;
+        Set<String> processedSubjects = new HashSet<>();
+
+        try {
+            model.setRowCount(0);
+            Connection conn = DBConnection.getConnection();
+            String sql = "SELECT s.subjectName, s.subjectCode, s.type, u.userName, s.shortName, scr.week_total_classes, scr.week_taken_classes, ts.* "
+                    + "FROM course_subjects s "
+                    + "JOIN teachers t ON t.employeeId = s.teachesBy "
+                    + "JOIN teacher_schedule ts on ts.employeeId = t.employeeId "
+                    + "JOIN courses c ON c.courseId = s.courseId "
+                    + "JOIN users u ON u.userId = t.userId "
+                    + "JOIN subjectclassrecord scr ON scr.subjectId = s.subjectId "
+                    + "WHERE c.courseCode = ?  AND s.semester = ?;";
+
+            PreparedStatement pst = conn.prepareStatement(sql);
+
+            pst.setString(1, courseCode);
+            pst.setInt(2, courseSemester);
+            try (ResultSet res = pst.executeQuery()) {
+                boolean hasResults = false;
+
+                while (res.next()) {
+                    hasResults = true;
+                    shortName = res.getString("shortName");
+                    subjectCode = res.getString("subjectCode");
+                    String uniqueKey = subjectCode + res.getString("type");
+                    String day = res.getString("day_name");
+                    int slot = res.getInt("slot_number");
+                    userName = res.getString("userName");
+                    for (TeacherInfo teacher : teachersList) {
+                        if (teacher.shortName.equals(getInitials(userName))) {
+                            System.out.println("ABCDEFGHIJKLMNOP");
+                            teacher.setOccupied(TeacherInfo.getDayIndex(day), slot);
+                        }
+                    }
+                    if (!processedSubjects.contains(uniqueKey)) {
+                        processedSubjects.add(uniqueKey);
+                        subjectName = res.getString("subjectName");
+                        classType = res.getString("type");
+                        week_total_classes = res.getInt("week_total_classes");
+                        week_taken_classes = res.getInt("week_taken_classes");
+
+                        Color specificColor = getSubjectColor(count);
+
+                        colorMap.put(shortName.toUpperCase(), specificColor);
+                        subjectList.add(new Subject(subjectName, shortName.toUpperCase(), classType.toLowerCase(), week_total_classes, specificColor));
+
+                        if (classType.equalsIgnoreCase("class")) {
+                            teachersList.add(new TeacherInfo(userName, getInitials(userName), specificColor));
+                        }
+
+                        // Only increment count when a NEW subject is found
+                        count++;
+                    }
+                }
+
+                if (!hasResults) {
+                    System.out.println("No subjects found for this course and semester.");
+                } else {
+                    System.out.println("Subjects loaded successfully.");
+                }
+            }
+            pst.close();
+            conn.close();
+
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println("Error in Time Table: " + e.getMessage());
+        }
+//        List<Subject> copySubjectList = subjectList;
+        for (int i = 0; i < 6; i++) {
+            List<Subject> labSubjects = subjectList.stream()
+                    .filter(s -> s.classType.equalsIgnoreCase("lab") && s.remainingClasses > 0)
+                    .collect(Collectors.toList());
+            for (int j = 0; j < data[i].length - 1; j++) {
+                Boolean foundOccupied = false;
+                for (TeacherInfo teacher : teachersList) {
+                    foundOccupied = teacher.checkOccupied(i,j);
+                }
+//                if(foundOccupied){
+//                    subjectList.remove(j);
+//                }
+                
+                if (data[i][j] != null) {
+                    continue;
+                }
+                slotType = j > 6 && j < 9 && !labSubjects.isEmpty() ? "lab" : "normal";
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                if ("lab".equals(slotType) && data[i][j + 1] != null) {
+                    continue;
+                }
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                data[i][j] = subjectClass(subjectList, slotType);
+                if ("lab".equals(slotType)) {
+                    data[i][j + 1] = data[i][j];
+                    j++;
+                }
+            }
+        }
+
+        for (Object[] data1 : data) {
+            model.addRow(data1);
+        }
+
+        for (Subject s : subjectList) {
+            if (s.remainingClasses > 0) {
+                System.out.println(s.getS_name() + " " + s.remainingClasses);
+            }
+        }
+
+        updateCourseLegend(subjectList);
+        updateTeachersLegend(teachersList);
+
+        TimetableCellRenderer renderer = new TimetableCellRenderer(colorMap);
+
+        for (int i = 0; i < timeTable.getColumnCount(); i++) {
+            timeTable.getColumnModel().getColumn(i).setCellRenderer(renderer);
+        }
+
+        // Force update
+        timeTable.repaint();
+    }
+
     private void saveTimeTableToDatabase() {
         String rawCourse = selectedCourse.getText();
         String courseCode = rawCourse.split("-")[0].trim();
@@ -159,7 +357,6 @@ public final class ShowTimeTable extends javax.swing.JFrame {
             if (rs.next()) {
                 courseId = rs.getInt("courseId");
             }
-            System.out.println("courseId: " + courseId);
             // 1. DELETE existing data for this Course + Semester + Section            
             String deleteSQL = "DELETE FROM timetable_schedule WHERE courseId = ? AND semester = ? AND section = ?";
             pstDelete = conn.prepareStatement(deleteSQL);
@@ -218,124 +415,6 @@ public final class ShowTimeTable extends javax.swing.JFrame {
             } catch (SQLException e) {
             }
         }
-    }
-
-    public void fetchSubjectCourse(String courseCode, int courseSemester) {
-        String subjectName, subjectCode, userName, classType, shortName;
-        String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-        List<Subject> subjectList = new ArrayList<Subject>();
-        List<TeacherInfo> teachersList = new ArrayList<>();
-        Map<String, Color> colorMap = new HashMap<>();
-
-        List<String> condition = new ArrayList<String>();
-        int count = 0;
-        int week_total_classes, week_taken_classes;
-
-        Object[][] data = new Object[days.length][10];
-        for (int i = 0; i < days.length; i++) {
-            data[i][0] = days[i];
-            if (i == 6) {
-                for (int j = 1; j < 10; j++) {
-                    data[i][j] = "H O L I D A Y";
-                }
-            } else {
-                data[i][3] = "T E A   B R E A K";
-                data[i][6] = "L U N C H   B R E A K";
-            }
-        }
-        String slotType;
-
-        try {
-            model.setRowCount(0);
-            Connection conn = DBConnection.getConnection();
-//scr.total_classes_till_date, scr.minClassNeed
-            String sql = "SELECT s.subjectName, s.subjectCode, s.type, u.userName, s.shortName, scr.week_total_classes, scr.week_taken_classes "
-                    + "FROM course_subjects s "
-                    + "JOIN teachers t ON t.employeeId = s.teachesBy "
-                    + "JOIN courses c ON c.courseId = s.courseId "
-                    + "JOIN users u ON u.userId = t.userId "
-                    + "JOIN subjectclassrecord scr ON scr.subjectId = s.subjectId "
-                    + "WHERE c.courseCode = ?  AND s.semester = ?;";
-
-            PreparedStatement pst = conn.prepareStatement(sql);
-
-            pst.setString(1, courseCode);
-            pst.setInt(2, courseSemester);
-
-            try (ResultSet res = pst.executeQuery()) {
-                boolean hasResults = false;
-                while (res.next()) {
-                    hasResults = true;
-
-                    subjectName = res.getString("subjectName");
-                    subjectCode = res.getString("subjectCode");
-                    userName = res.getString("userName");
-                    classType = res.getString("type");
-                    shortName = res.getString("shortName");
-                    week_total_classes = res.getInt("week_total_classes");
-                    week_taken_classes = res.getInt("week_taken_classes");
-
-                    Color specificColor = getSubjectColor(count);
-                    colorMap.put(shortName.toUpperCase(), specificColor);
-                    subjectList.add(new Subject(subjectName, shortName.toUpperCase(), classType.toLowerCase(), week_total_classes, getSubjectColor(count)));
-                    if (classType.equalsIgnoreCase("class")) {
-                        teachersList.add(new TeacherInfo(userName, getInitials(userName), getSubjectColor(count)));
-                    }
-                    count++;
-                }
-
-                if (!hasResults) {
-                    System.out.println("No subjects found for this course and semester.");
-                } else {
-                    System.out.println("Subjects loaded successfully.");
-                }
-            }
-            pst.close();
-            conn.close();
-
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("Error in Time Table: " + e.getMessage());
-        }
-
-//                if () {
-        for (int i = 0; i < 6; i++) {
-            List<Subject> labSubjects = subjectList.stream()
-                    .filter(s -> s.classType.equalsIgnoreCase("lab") && s.remainingClasses > 0)
-                    .collect(Collectors.toList());
-            for (int j = 0; j < data[i].length - 1; j++) {
-                if (j == 3 || j == 6 || j == 0 || (j == data[i].length - 1 && !labSubjects.isEmpty())) {
-                    continue;
-                }
-                slotType = j > 6 && j < 9 && !labSubjects.isEmpty() ? "lab" : "normal";
-                data[i][j] = subjectClass(subjectList, slotType);
-                if ("lab".equals(slotType)) {
-                    data[i][j + 1] = data[i][j];
-                    j++;
-                }
-            }
-        }
-
-        for (Object[] data1 : data) {
-            model.addRow(data1);
-        }
-
-        for (Subject s : subjectList) {
-            if (s.remainingClasses > 0) {
-                System.out.println(s.getS_name() + " " + s.remainingClasses);
-            }
-        }
-
-        updateCourseLegend(subjectList);
-        updateTeachersLegend(teachersList);
-
-        TimetableCellRenderer renderer = new TimetableCellRenderer(colorMap);
-
-        for (int i = 0; i < timeTable.getColumnCount(); i++) {
-            timeTable.getColumnModel().getColumn(i).setCellRenderer(renderer);
-        }
-
-        // Force update
-        timeTable.repaint();
     }
 
     private void updateTeachersLegend(List<TeacherInfo> teachersList) {

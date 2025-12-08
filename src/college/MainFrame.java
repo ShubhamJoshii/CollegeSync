@@ -17,7 +17,7 @@ public class MainFrame extends javax.swing.JFrame {
     public LeaveRequest leaveRequest;
     public ManageLeaveRequests manageLeaveRequests;
     public TimeTableStudent timeTableStudent;
-    
+    public MySchedule mySchedule;
     public MainFrame() {
         initComponents();
         this.setLocationRelativeTo(null);
@@ -36,7 +36,10 @@ public class MainFrame extends javax.swing.JFrame {
         profile = new Profile(this);
         headerContainer.add(header);
         leaveRequest = new LeaveRequest(this);
+        mySchedule = new MySchedule(this);
         manageLeaveRequests = new ManageLeaveRequests(this); 
+        
+        
         mainPanel.add(home, "home");
         mainPanel.add(manage, "manage");
         mainPanel.add(studentForm, "studentForm");
@@ -53,6 +56,7 @@ public class MainFrame extends javax.swing.JFrame {
         mainPanel.add(new Announcement(this), "announcement");
         mainPanel.add(new Course(this), "course");
         mainPanel.add(new Attendence(this), "attendence");
+        mainPanel.add(mySchedule, "myschedule");
         
     }
 
@@ -69,6 +73,7 @@ public class MainFrame extends javax.swing.JFrame {
         leaveRequest.updateButtonVisibility();
         manageLeaveRequests.fetchLeaves();
         timeTableStudent.updateButtonVisibility();
+        mySchedule.fetchSchedule();
     }
 
     @SuppressWarnings("unchecked")

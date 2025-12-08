@@ -55,7 +55,7 @@ public class UserSession {
             ResultSet res = pst.executeQuery();
 
             if (res.next()) {
-                System.out.println(res.getInt("userID") + " " + res.getString("userName") + " " + res.getString("email") + " " + res.getString("contact"));
+//                System.out.println(res.getInt("userID") + " " + res.getString("userName") + " " + res.getString("email") + " " + res.getString("contact"));
                 LocalDate currentDate = LocalDate.now();
                 int currentYear = currentDate.getYear();
                 userId = res.getInt("userID");
@@ -72,12 +72,12 @@ public class UserSession {
                 isLoggedIn = true;
                 rollNo = res.getString("uniqueNo");
                 if ("student".equalsIgnoreCase(role) || "faculty".equalsIgnoreCase(role)) {
-                    semester = res.getInt("currSemester");
                     fatherName = res.getString("father_name");
                     motherName = res.getString("mother_name");
                     fatherOccu = res.getString("father_occu");
                     motherOccu = res.getString("mother_occu");
                     if ("student".equalsIgnoreCase(role)) {
+                        semester = res.getInt("currSemester");
                         courseName = res.getString("courseName");
                         applicationNo = res.getString("courseName") + String.format("%0" + 4 + "d", res.getInt("userID"));
 //                        rollNo = res.getString("courseName") + String.format("%0" + 4 + "d", res.getInt("userID")) + currentYear;
@@ -105,7 +105,7 @@ public class UserSession {
         email = emailId;
         userRole = role;
         isLoggedIn = true;
-        System.out.println("User ID: " + id + " UserName: " + name + "User Role: " + role);
+//        System.out.println("User ID: " + id + " UserName: " + name + "User Role: " + role);
     }
 
     public static void cleanSession() {

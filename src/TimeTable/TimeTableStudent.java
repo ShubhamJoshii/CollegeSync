@@ -90,7 +90,7 @@ public final class TimeTableStudent extends javax.swing.JPanel {
         setPreferredSize(new java.awt.Dimension(1300, 800));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel1.setText("Time Table");
+        jLabel1.setText("Student Time Table");
 
         jScrollPane2.setBackground(new java.awt.Color(248, 251, 255));
 

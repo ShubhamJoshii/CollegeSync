@@ -218,7 +218,6 @@ public final class GenerateTimeTable extends javax.swing.JDialog {
                 for (int i = 1; i <= semesters; i++) {
                     selectSemster.addItem("" + i);
                 }
-//                String courseCode = rs.getString("courseCode");
             }
         } catch (ClassNotFoundException | SQLException e) {
         }
@@ -229,7 +228,7 @@ public final class GenerateTimeTable extends javax.swing.JDialog {
         String subjectName;
         try {
             Connection conn = DBConnection.getConnection();
-            String sql = "SELECT cs.subjectName, scr. week_total_classes, scr.minClassNeed FROM courses c "
+            String sql = "SELECT cs.subjectName, cs.type, scr. week_total_classes, scr.minClassNeed FROM courses c "
                     + "JOIN course_subjects cs on cs.courseId = c.courseId "
                     + "JOIN subjectclassrecord scr on scr.subjectId = cs.subjectId "
                     + "where c.courseCode = ? AND semester = ?;";
@@ -241,7 +240,7 @@ public final class GenerateTimeTable extends javax.swing.JDialog {
             ResultSet rs = ps.executeQuery();
             model.setRowCount(0);
             while (rs.next()) {
-                subjectName = rs.getString("subjectName");
+                subjectName = rs.getString("subjectName") + " (" +  rs.getString("type") + ")";
                 weeklyRequired = rs.getInt("week_total_classes");
                 minClassRequired = rs.getInt("minClassNeed");
                 model.addRow(new Object[]{++count, subjectName, minClassRequired, weeklyRequired});
@@ -273,7 +272,6 @@ public final class GenerateTimeTable extends javax.swing.JDialog {
         if (selected != null) {
             String courseCode = selectCourse.getSelectedItem().toString().split("-")[0].trim();
             int courseSemester = Integer.parseInt(selected.toString().split("-")[0].trim());
-            System.out.println(courseCode + " " + courseSemester);
             fetchSubjects(courseCode, courseSemester);
 //            fetchSubjectCourse(courseCode, courseSemester);
         }
