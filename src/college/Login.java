@@ -1,9 +1,9 @@
 package college;
 
+import CollegeSync.DBConnection;
 import java.awt.*;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
-import collegemanagement.*;
 import java.sql.*;
 import org.mindrot.jbcrypt.BCrypt;
 

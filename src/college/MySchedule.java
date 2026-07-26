@@ -5,7 +5,7 @@
 package college;
 
 import TimeTable.TimetableCellRenderer;
-import collegemanagement.DBConnection;
+import CollegeSync.DBConnection;
 import java.awt.CardLayout;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,19 +21,12 @@ public class MySchedule extends javax.swing.JPanel {
     MainFrame main;
     DefaultTableModel model;
 
-    /**
-     * Creates new form MySchedule
-     *
-     * @param main
-     */
     public MySchedule(MainFrame main) {
         initComponents();
         this.main = main;
         this.model = (DefaultTableModel) schedule.getModel();
         schedule.setShowVerticalLines(false);
-        // --------------------------
 
-        // Also good to remove spacing so merged cells touch perfectly
         schedule.setIntercellSpacing(new java.awt.Dimension(0, 0));
         TimetableCellRenderer renderer = new TimetableCellRenderer(new HashMap<>());
         for (int i = 0; i < schedule.getColumnCount(); i++) {
@@ -48,14 +41,45 @@ public class MySchedule extends javax.swing.JPanel {
         schedule.setRowHeight(50);
     }
 
+    int getDayIndex(String dayName) {
+        if (dayName == null) {
+            return -1;
+        }
+        return switch (dayName.trim().toLowerCase()) {
+            case "monday" ->
+                0;
+            case "tuesday" ->
+                1;
+            case "wednesday" ->
+                2;
+            case "thursday" ->
+                3;
+            case "friday" ->
+                4;
+            case "saturday" ->
+                5;
+            case "sunday" ->
+                6;
+            default ->
+                -1;
+        };
+    }
+
     public void fetchSchedule() {
+        String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        Object[][] data = new Object[days.length][10];
+        for (int i = 0; i < days.length; i++) {
+            data[i][0] = days[i];
+        }
         model.setRowCount(0);
+
         try {
             Connection conn = DBConnection.getConnection();
 
-            String sql = "select  u.userName, u.userId, ts.* from teacher_schedule ts "
+            String sql = "select  u.userName, u.userId, ts.*, cs.subjectName, cs.shortName,cs.subjectCode from teacher_schedule ts "
                     + "JOIN teachers t on t.employeeId = ts.employeeId "
                     + "JOIN users u on u.userId = t.userId "
+                    + "JOIN course_subjects cs on cs.subjectId = ts.subjectId "
                     + "where u.userId = ? ";
 //                    + "ORDER BY FIELD(day_name, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
 
@@ -71,23 +95,25 @@ public class MySchedule extends javax.swing.JPanel {
                         + res.getString("day_name") + " "
                         + res.getInt("slot_number") + " "
                         + res.getString("section"));
-                model.addRow(new Object[]{
-                    res.getString("day_name"),
-                    res.getInt("slot_number"),
-                    res.getString("section")
-                });
+                if(res.getString("description") != null){
+                
+                }else{
+                    data[getDayIndex(res.getString("day_name"))][res.getInt("slot_number")] = res.getString("shortName").toUpperCase() + " " + res.getString("subjectCode");
+                }
+//                model.addRow(new Object[]{
+//                    res.getString("day_name"),
+//                    res.getInt("slot_number"),
+//                    res.getString("section")
+//                });
             }
 
             pst.close();
             conn.close();
-
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println("Error in Login: " + e.getMessage());
-            JOptionPane.showMessageDialog(this,
-                    "Registration UnSuccessful: " + e.getMessage(),
-                    "Success",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+        }
+        for (Object[] data1 : data) {
+            model.addRow(data1);
         }
     }
 

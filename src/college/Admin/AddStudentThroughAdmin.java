@@ -1,6 +1,6 @@
 package college.Admin;
 
-import collegemanagement.DBConnection;
+import CollegeSync.DBConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -60,7 +60,7 @@ public class Header extends javax.swing.JPanel {
 
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Logo35.png"))); // NOI18N
-        jLabel11.setText("COLLEGE MANAGEMENT SYSTEM");
+        jLabel11.setText("COLLEGE SYNC");
         jLabel11.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel11MouseClicked(evt);

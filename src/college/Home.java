@@ -38,7 +38,7 @@ public class Home extends javax.swing.JPanel {
             buttonContainer.remove(studentBtn);
             buttonContainer.remove(attendenceBtn);
             buttonContainer.remove(leaveRequestBtn);
-            buttonContainer.remove(manageBtn);
+//            buttonContainer.remove(manageBtn);
 //          buttonContainer.remove(timetable);
 
         }

@@ -1,7 +1,7 @@
 package college.Admin;
 
 import college.*;
-import collegemanagement.DBConnection;
+import CollegeSync.DBConnection;
 import java.awt.CardLayout;
 import java.util.Date;
 import javax.swing.JOptionPane;

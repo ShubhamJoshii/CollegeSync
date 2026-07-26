@@ -1,7 +1,7 @@
 package TimeTable;
 
-import collegemanagement.DBConnection;
-import collegemanagement.Subject;
+import CollegeSync.DBConnection;
+import CollegeSync.Subject;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -22,22 +22,32 @@ import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
 class TeacherInfo {
-
     public boolean[][] freeSlots;
     String shortName;
     String Name;
+//    String subjectCode;
+    ArrayList<String> subjectCodes;
     java.awt.Color color;
 
-    public TeacherInfo(String Name, String shortName, java.awt.Color color) {
+    public TeacherInfo(String Name, String shortName, java.awt.Color color, String subjectCode, int dayIndex, int slotIndex) {
         this.Name = Name;
         this.shortName = shortName;
         this.color = color;
+//        this.subjectCode = subjectCode;
+        this.subjectCodes = new ArrayList<>();
+        subjectCodes.add(subjectCode);
         this.freeSlots = new boolean[7][10];
         for (boolean[] row : this.freeSlots) {
             Arrays.fill(row, true);
+            row[0] = false;
         }
+        freeSlots[dayIndex][slotIndex] = false;
     }
 
+    public void addSubject(String subjectCode) {
+        subjectCodes.add(subjectCode);
+    }
+    
     public void setOccupied(int dayIndex, int slotIndex) {
         if (dayIndex >= 0 && dayIndex < 7 && slotIndex >= 0 && slotIndex < 10) {
             freeSlots[dayIndex][slotIndex] = false;
@@ -46,35 +56,11 @@ class TeacherInfo {
         }
     }
 
-    public boolean checkOccupied(int dayIndex, int slotIndex){
-        if (dayIndex >= 0 && dayIndex < 7 && slotIndex >= 0 && slotIndex < 10) {
-            return freeSlots[dayIndex][slotIndex];
-        }
-        return true;
-    }
-    
-    public static int getDayIndex(String dayName) {
-        if (dayName == null) {
-            return -1;
-        }
-        return switch (dayName.trim().toLowerCase()) {
-            case "monday" ->
-                0;
-            case "tuesday" ->
-                1;
-            case "wednesday" ->
-                2;
-            case "thursday" ->
-                3;
-            case "friday" ->
-                4;
-            case "saturday" ->
-                5;
-            case "sunday" ->
-                6;
-            default ->
-                -1;
-        };
+    public boolean checkFreeOROccupied(int dayIndex, int slotIndex) {
+//        if (dayIndex >= 0 && dayIndex < 7 && slotIndex >= 0 && slotIndex < 10) {
+        return freeSlots[dayIndex][slotIndex];
+//        }
+//        return false;
     }
 
     public void laterDelete() {
@@ -96,6 +82,30 @@ public final class ShowTimeTable extends javax.swing.JFrame {
 
     public ShowTimeTable() {
         initComponents();
+    }
+
+    int getDayIndex(String dayName) {
+        if (dayName == null) {
+            return -1;
+        }
+        return switch (dayName.trim().toLowerCase()) {
+            case "monday" ->
+                0;
+            case "tuesday" ->
+                1;
+            case "wednesday" ->
+                2;
+            case "thursday" ->
+                3;
+            case "friday" ->
+                4;
+            case "saturday" ->
+                5;
+            case "sunday" ->
+                6;
+            default ->
+                -1;
+        };
     }
 
     public ShowTimeTable(String courseCode, int courseSemester) {
@@ -245,8 +255,7 @@ public final class ShowTimeTable extends javax.swing.JFrame {
                     userName = res.getString("userName");
                     for (TeacherInfo teacher : teachersList) {
                         if (teacher.shortName.equals(getInitials(userName))) {
-                            System.out.println("ABCDEFGHIJKLMNOP");
-                            teacher.setOccupied(TeacherInfo.getDayIndex(day), slot);
+                            teacher.setOccupied(getDayIndex(day), slot);
                         }
                     }
                     if (!processedSubjects.contains(uniqueKey)) {
@@ -256,13 +265,27 @@ public final class ShowTimeTable extends javax.swing.JFrame {
                         week_total_classes = res.getInt("week_total_classes");
                         week_taken_classes = res.getInt("week_taken_classes");
 
+                        boolean foundTeacher = false;
+                        for (TeacherInfo teacher : teachersList) {
+                            if (teacher.Name.equals(userName)) {
+                                foundTeacher = true;
+                                break;
+                            }
+                        }
+
                         Color specificColor = getSubjectColor(count);
 
                         colorMap.put(shortName.toUpperCase(), specificColor);
-                        subjectList.add(new Subject(subjectName, shortName.toUpperCase(), classType.toLowerCase(), week_total_classes, specificColor));
+                        subjectList.add(new Subject(subjectName, shortName.toUpperCase(), classType.toLowerCase(), week_total_classes, specificColor, subjectCode));
 
-                        if (classType.equalsIgnoreCase("class")) {
-                            teachersList.add(new TeacherInfo(userName, getInitials(userName), specificColor));
+                        if (classType.equalsIgnoreCase("class") || !foundTeacher) {
+                            teachersList.add(new TeacherInfo(userName, getInitials(userName), specificColor, subjectCode, getDayIndex(day), slot));
+                        }else if(classType.equalsIgnoreCase("lab") || foundTeacher){
+                            for(TeacherInfo teacher:teachersList){
+                                if(teacher.Name.equals(userName)){
+                                    teacher.addSubject(subjectCode);
+                                }
+                            }
                         }
 
                         // Only increment count when a NEW subject is found
@@ -282,30 +305,42 @@ public final class ShowTimeTable extends javax.swing.JFrame {
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println("Error in Time Table: " + e.getMessage());
         }
+        for (TeacherInfo teacher : teachersList) {
+            System.out.println(teacher.Name);
+            teacher.laterDelete();
+        }
+//        for (Subject sub : subjectList) {
+//            System.out.println(sub.subjectCode);
+//        }
+
 //        List<Subject> copySubjectList = subjectList;
         for (int i = 0; i < 6; i++) {
             List<Subject> labSubjects = subjectList.stream()
                     .filter(s -> s.classType.equalsIgnoreCase("lab") && s.remainingClasses > 0)
                     .collect(Collectors.toList());
             for (int j = 0; j < data[i].length - 1; j++) {
-                Boolean foundOccupied = false;
-                for (TeacherInfo teacher : teachersList) {
-                    foundOccupied = teacher.checkOccupied(i,j);
-                }
-//                if(foundOccupied){
-//                    subjectList.remove(j);
-//                }
-                
                 if (data[i][j] != null) {
                     continue;
                 }
                 slotType = j > 6 && j < 9 && !labSubjects.isEmpty() ? "lab" : "normal";
+                List<Subject> freeFacultySubjects = new ArrayList<>(subjectList);
+                Boolean foundFree = true;
+                for (TeacherInfo teacher : teachersList) {
+                    foundFree = teacher.checkFreeOROccupied(i, j);
+                    if (!foundFree) {
+                        System.out.println("Found Occupied at" + i + " " + j + " " + teacher.Name);
+                        freeFacultySubjects.removeIf(subject -> teacher.subjectCodes.contains(subject.subjectCode));
+                    } else {
+//                        freeFacultySubjects.add()
+                    }
+                }
+
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 if ("lab".equals(slotType) && data[i][j + 1] != null) {
                     continue;
                 }
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                data[i][j] = subjectClass(subjectList, slotType);
+                data[i][j] = subjectClass(freeFacultySubjects, slotType);
                 if ("lab".equals(slotType)) {
                     data[i][j + 1] = data[i][j];
                     j++;

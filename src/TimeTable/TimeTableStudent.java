@@ -5,8 +5,10 @@ import college.UserSession;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import collegemanagement.DBConnection;
-import collegemanagement.Subject;
+import CollegeSync.DBConnection;
+import CollegeSync.Subject;
+import CollegeSync.TeacherInfo;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -17,30 +19,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
-
-class TimeSlots {
-
-    String timing;
-    String type;
-
-    TimeSlots(String timing, String type) {
-        this.timing = timing;
-        this.type = type;
-    }
-}
-
-class TeacherInfo {
-
-    String shortName;
-    String Name;
-    java.awt.Color color;
-
-    public TeacherInfo(String Name, String shortName, java.awt.Color color) {
-        this.Name = Name;
-        this.shortName = shortName;
-        this.color = color;
-    }
-}
 
 public final class TimeTableStudent extends javax.swing.JPanel {
 

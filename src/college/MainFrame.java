@@ -85,7 +85,8 @@ public class MainFrame extends javax.swing.JFrame {
         headerContainer = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("COLLEGE MANAGEMENT SYSTEM");
+        setTitle("COLLEGE SYNC");
+        setAutoRequestFocus(false);
         setIconImages(null);
         setName("mainFrame"); // NOI18N
 
@@ -100,6 +101,9 @@ public class MainFrame extends javax.swing.JFrame {
         headerContainer.setBackground(new java.awt.Color(248, 251, 255));
         headerContainer.setPreferredSize(new java.awt.Dimension(10, 100));
         getContentPane().add(headerContainer, java.awt.BorderLayout.PAGE_START);
+
+        getAccessibleContext().setAccessibleName("COLLEGE SYNC");
+        getAccessibleContext().setAccessibleDescription("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

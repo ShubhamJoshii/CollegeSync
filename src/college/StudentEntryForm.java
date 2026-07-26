@@ -1,6 +1,6 @@
 package college;
 
-import collegemanagement.DBConnection;
+import CollegeSync.DBConnection;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.sql.Connection;

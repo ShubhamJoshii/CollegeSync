@@ -1,9 +1,9 @@
 package college;
 
+import CollegeSync.DBConnection;
 import java.awt.*;
 import java.util.Arrays;
 import javax.swing.*;
-import collegemanagement.*;
 import java.sql.*;
 import org.mindrot.jbcrypt.BCrypt;
 

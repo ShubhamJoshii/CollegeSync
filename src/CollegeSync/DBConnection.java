@@ -1,4 +1,4 @@
-package collegemanagement;
+package CollegeSync;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
